@@ -247,11 +247,23 @@ def _send_telegram(payload: dict) -> Tuple[str, str]:
     logger.info(f"Telegram send: chat_id={repr(chat_id)}, text_len={len(text)}, text_preview={repr(text[:100])}")
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    response = requests.post(url, json={
-        'chat_id': chat_id,
-        'text': text
-    }, timeout=10)
-    response.raise_for_status()
+    try:
+        response = requests.post(url, json={
+            'chat_id': chat_id,
+            'text': text
+        }, timeout=10)
+        response.raise_for_status()
+    except Exception as e:
+        # Try to get more error details
+        error_details = str(e)
+        if hasattr(e, 'response') and e.response is not None:
+            try:
+                error_json = e.response.json()
+                error_details = f"{error_details} - {error_json}"
+            except:
+                error_details = f"{error_details} - Status: {e.response.status_code}, Body: {e.response.text[:200]}"
+        logger.error(f"Telegram error: {error_details}")
+        return ('failed', f'Telegram API error: {error_details}')
 
     return ('success', f'Message sent to {chat_id}')
 

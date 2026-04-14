@@ -37,7 +37,7 @@
     "start_line": 409,
     "end_line": 450,
     "module": "scheduler",
-    "description": "_software_jobs_alert(payload) - Send software jobs to all configured channels (Telegram, Email). Uses {{software_jobs}} variable for dynamic content."
+    "description": "_software_jobs_alert(payload) - Send software jobs ONLY to email (vivek645496@gmail.com). Uses {{software_jobs}} variable for dynamic content."
   },
   "_deep_replace": {
     "type": "function",

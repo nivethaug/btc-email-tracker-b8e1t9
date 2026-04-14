@@ -5,7 +5,7 @@
       "FETCH_DATA_REGISTRY - maps variable names to data fetch functions (btc_price, eth_price, weather, news, software_jobs)",
       "resolve_content() - replaces {{variable}} with live data",
       "execute_task(job) - main entry point called by central scheduler",
-      "Task handlers: _send_telegram, _send_discord, _send_email, _call_api, _execute_trade, _software_jobs_alert",
+      "Task handlers: _send_telegram, _send_discord, _send_email, _call_api, _execute_trade, _software_jobs_alert (email-only)",
       "Data fetchers: _fetch_crypto, _fetch_weather, _fetch_news, _fetch_software_jobs"
     ]
   },

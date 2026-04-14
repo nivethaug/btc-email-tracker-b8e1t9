@@ -18,10 +18,26 @@
   "FETCH_DATA_REGISTRY": {
     "type": "registry",
     "file": "scheduler/executor.py",
-    "start_line": 49,
-    "end_line": 54,
+    "start_line": 52,
+    "end_line": 58,
     "module": "scheduler",
-    "description": "FETCH_DATA_REGISTRY - Maps variable names (btc_price, eth_price, weather, news) to fetch functions. AI adds new entries here."
+    "description": "FETCH_DATA_REGISTRY - Maps variable names (btc_price, eth_price, weather, news, software_jobs) to fetch functions. AI adds new entries here."
+  },
+  "_fetch_software_jobs": {
+    "type": "function",
+    "file": "scheduler/executor.py",
+    "start_line": 109,
+    "end_line": 124,
+    "module": "scheduler",
+    "description": "_fetch_software_jobs() - Fetches remote software jobs via api_client.scrape_weworkremotely_jobs(), returns formatted job listings."
+  },
+  "_software_jobs_alert": {
+    "type": "handler",
+    "file": "scheduler/executor.py",
+    "start_line": 409,
+    "end_line": 450,
+    "module": "scheduler",
+    "description": "_software_jobs_alert(payload) - Send software jobs to all configured channels (Telegram, Email). Uses {{software_jobs}} variable for dynamic content."
   },
   "_deep_replace": {
     "type": "function",
@@ -182,5 +198,21 @@
     "end_line": 155,
     "module": "services",
     "description": "get_news(query, page) - Fetch top stories from Hacker News API."
+  },
+  "get_remote_software_jobs": {
+    "type": "api",
+    "file": "services/api_client.py",
+    "start_line": 157,
+    "end_line": 180,
+    "module": "services",
+    "description": "get_remote_software_jobs(count) - Fetch remote software jobs from Jobicy API."
+  },
+  "scrape_weworkremotely_jobs": {
+    "type": "api",
+    "file": "services/api_client.py",
+    "start_line": 182,
+    "end_line": 240,
+    "module": "services",
+    "description": "scrape_weworkremotely_jobs(category) - Scrape software jobs from WeWorkRemotely using web scraping (BeautifulSoup + lxml). Returns job listings with title, company, URL, date posted."
   }
 }

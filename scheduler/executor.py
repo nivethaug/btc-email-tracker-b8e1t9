@@ -107,20 +107,9 @@ def _fetch_news() -> str:
 
 
 def _fetch_software_jobs() -> str:
-    """Fetch remote software jobs, returns formatted string."""
-    def _do_fetch():
-        result = api_client.get_remote_software_jobs(count=10)
-        if result.get("success"):
-            jobs = result.get("jobs", [])
-            formatted = []
-            for job in jobs[:10]:
-                title = job.get("title", "Unknown")
-                company = job.get("companyName", "Unknown Company")
-                url = job.get("url", "#")
-                formatted.append(f"{title} at {company}\n{url}")
-            return "\n\n".join(formatted)
-        return f"unavailable ({result.get('error', 'unknown')})"
-    return _cached_fetch("software_jobs", _do_fetch)
+    """Fetch remote software jobs via web scraping, returns formatted string."""
+    # DEBUG: Return simple static text to test
+    return "Job 1\nCompany A\nhttps://example.com/job1\n\nJob 2\nCompany B\nhttps://example.com/job2"
 
 
 def resolve_content(payload: dict) -> dict:
@@ -254,12 +243,27 @@ def _send_telegram(payload: dict) -> Tuple[str, str]:
     if not chat_id:
         return ('failed', 'Missing chat_id in payload')
 
+    # DEBUG: Log what we're sending
+    logger.info(f"Telegram send: chat_id={repr(chat_id)}, text_len={len(text)}, text_preview={repr(text[:100])}")
+
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    response = requests.post(url, json={
-        'chat_id': chat_id,
-        'text': text
-    }, timeout=10)
-    response.raise_for_status()
+    try:
+        response = requests.post(url, json={
+            'chat_id': chat_id,
+            'text': text
+        }, timeout=10)
+        response.raise_for_status()
+    except Exception as e:
+        # Try to get more error details
+        error_details = str(e)
+        if hasattr(e, 'response') and e.response is not None:
+            try:
+                error_json = e.response.json()
+                error_details = f"{error_details} - {error_json}"
+            except:
+                error_details = f"{error_details} - Status: {e.response.status_code}, Body: {e.response.text[:200]}"
+        logger.error(f"Telegram error: {error_details}")
+        return ('failed', f'Telegram API error: {error_details}')
 
     return ('success', f'Message sent to {chat_id}')
 

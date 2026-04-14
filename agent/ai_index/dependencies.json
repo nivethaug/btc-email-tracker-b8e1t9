@@ -22,7 +22,9 @@
   "services/api_client.py": {
     "imports": [
       "requests",
-      "config"
+      "config",
+      "bs4 (BeautifulSoup)",
+      "lxml"
     ],
     "used_by": ["scheduler/executor.py"]
   },

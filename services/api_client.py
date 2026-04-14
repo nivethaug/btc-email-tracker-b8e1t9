@@ -177,3 +177,66 @@ def get_remote_software_jobs(count: int = 10) -> dict:
 
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+def scrape_weworkremotely_jobs(category: str = "programming") -> dict:
+    """
+    Scrape software jobs from WeWorkRemotely using web scraping.
+
+    Args:
+        category: Job category to scrape (default: 'programming' for software dev jobs)
+
+    Returns:
+        dict with job listings
+    """
+    from bs4 import BeautifulSoup
+
+    try:
+        url = f"https://weworkremotely.com/categories/{category}-remote-jobs"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+
+        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.content, 'lxml')
+        jobs = []
+
+        # Find all job listings
+        job_listings = soup.find_all('li', class_='feature')
+
+        for listing in job_listings[:20]:  # Limit to 20 jobs
+            try:
+                # Extract job title and company
+                title_elem = listing.find('span', class_='title')
+                company_elem = listing.find('span', class_='company')
+                link_elem = listing.find('a')
+
+                if title_elem and company_elem and link_elem:
+                    title = title_elem.text.strip()
+                    company = company_elem.text.strip()
+                    job_url = f"https://weworkremotely.com{link_elem.get('href', '')}"
+
+                    # Extract date posted if available
+                    date_elem = listing.find('span', class_='date')
+                    date_text = date_elem.text.strip() if date_elem else "Recent"
+
+                    jobs.append({
+                        "title": title,
+                        "companyName": company,
+                        "url": job_url,
+                        "datePosted": date_text,
+                        "type": "Full-time"
+                    })
+            except Exception as e:
+                # Skip individual job parsing errors
+                continue
+
+        if jobs:
+            return {"success": True, "jobs": jobs}
+        else:
+            return {"success": False, "error": "No jobs found on page"}
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}

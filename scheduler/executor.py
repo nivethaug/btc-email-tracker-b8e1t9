@@ -107,17 +107,18 @@ def _fetch_news() -> str:
 
 
 def _fetch_software_jobs() -> str:
-    """Fetch remote software jobs, returns formatted string."""
+    """Fetch remote software jobs via web scraping, returns formatted string."""
     def _do_fetch():
-        result = api_client.get_remote_software_jobs(count=10)
+        result = api_client.scrape_weworkremotely_jobs(category="programming")
         if result.get("success"):
             jobs = result.get("jobs", [])
             formatted = []
-            for job in jobs[:10]:
+            for job in jobs[:15]:  # Limit to 15 jobs
                 title = job.get("title", "Unknown")
                 company = job.get("companyName", "Unknown Company")
                 url = job.get("url", "#")
-                formatted.append(f"{title} at {company}\n{url}")
+                date = job.get("datePosted", "Recent")
+                formatted.append(f"{title} at {company}\nPosted: {date}\n{url}")
             return "\n\n".join(formatted)
         return f"unavailable ({result.get('error', 'unknown')})"
     return _cached_fetch("software_jobs", _do_fetch)

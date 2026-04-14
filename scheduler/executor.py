@@ -108,20 +108,8 @@ def _fetch_news() -> str:
 
 def _fetch_software_jobs() -> str:
     """Fetch remote software jobs via web scraping, returns formatted string."""
-    def _do_fetch():
-        result = api_client.scrape_weworkremotely_jobs(category="programming")
-        if result.get("success"):
-            jobs = result.get("jobs", [])
-            formatted = []
-            for job in jobs[:15]:  # Limit to 15 jobs
-                title = job.get("title", "Unknown")
-                company = job.get("companyName", "Unknown Company")
-                url = job.get("url", "#")
-                date = job.get("datePosted", "Recent")
-                formatted.append(f"{title} at {company}\nPosted: {date}\n{url}")
-            return "\n\n".join(formatted)
-        return f"unavailable ({result.get('error', 'unknown')})"
-    return _cached_fetch("software_jobs", _do_fetch)
+    # DEBUG: Return simple static text to test
+    return "Job 1\nCompany A\nhttps://example.com/job1\n\nJob 2\nCompany B\nhttps://example.com/job2"
 
 
 def resolve_content(payload: dict) -> dict:
@@ -254,6 +242,9 @@ def _send_telegram(payload: dict) -> Tuple[str, str]:
 
     if not chat_id:
         return ('failed', 'Missing chat_id in payload')
+
+    # DEBUG: Log what we're sending
+    logger.info(f"Telegram send: chat_id={repr(chat_id)}, text_len={len(text)}, text_preview={repr(text[:100])}")
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     response = requests.post(url, json={

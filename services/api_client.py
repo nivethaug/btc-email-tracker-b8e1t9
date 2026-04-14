@@ -189,9 +189,8 @@ def scrape_weworkremotely_jobs(category: str = "programming") -> dict:
     Returns:
         dict with job listings
     """
-    from bs4 import BeautifulSoup
-
     try:
+        from bs4 import BeautifulSoup
         url = f"https://weworkremotely.com/categories/{category}-remote-jobs"
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -203,40 +202,54 @@ def scrape_weworkremotely_jobs(category: str = "programming") -> dict:
         soup = BeautifulSoup(response.content, 'lxml')
         jobs = []
 
-        # Find all job listings
-        job_listings = soup.find_all('li', class_='feature')
+        # Find all job listings - correct CSS class
+        job_listings = soup.find_all('li', class_='new-listing-container feature')
 
-        for listing in job_listings[:20]:  # Limit to 20 jobs
+        for listing in job_listings[:15]:  # Limit to 15 jobs
             try:
-                # Extract job title and company
-                title_elem = listing.find('span', class_='title')
-                company_elem = listing.find('span', class_='company')
-                link_elem = listing.find('a')
+                # Find the job link (second link is usually the job posting)
+                links = listing.find_all('a')
+                if len(links) < 2:
+                    continue
 
-                if title_elem and company_elem and link_elem:
-                    title = title_elem.text.strip()
-                    company = company_elem.text.strip()
-                    job_url = f"https://weworkremotely.com{link_elem.get('href', '')}"
+                job_link = links[1]  # Second link is the job posting
+                job_url = f"https://weworkremotely.com{job_link.get('href', '')}"
 
-                    # Extract date posted if available
-                    date_elem = listing.find('span', class_='date')
-                    date_text = date_elem.text.strip() if date_elem else "Recent"
+                # Extract title from the proper element
+                title_elem = job_link.find('span', class_='new-listing__header__title__text')
+                title = title_elem.get_text(strip=True) if title_elem else "Unknown Title"
 
-                    jobs.append({
-                        "title": title,
-                        "companyName": company,
-                        "url": job_url,
-                        "datePosted": date_text,
-                        "type": "Full-time"
-                    })
+                # Extract company name from the proper element
+                company_elem = listing.find('p', class_='new-listing__company-name')
+                company = company_elem.get_text(strip=True) if company_elem else "Unknown Company"
+
+                # Clean title - remove salary and location info
+                if ' - ' in title:
+                    title = title.split(' - ')[0].strip()
+
+                # Sanitize for Telegram - replace special unicode characters
+                title = title.replace('—', '-').replace('"', '\'').replace('*', '')
+                company = company.replace('—', '-').replace('"', '\'').replace('*', '')
+
+                # Try to get date from nearby elements
+                date_elem = listing.find('time')
+                date_text = date_elem.get('datetime', '')[:10] if date_elem else ""
+
+                jobs.append({
+                    "title": title,
+                    "companyName": company,
+                    "url": job_url,
+                    "datePosted": date_text if date_text else "Recent",
+                    "type": "Remote"
+                })
             except Exception as e:
                 # Skip individual job parsing errors
                 continue
 
         if jobs:
-            return {"success": True, "jobs": jobs}
+            return {"success": True, "jobs": jobs, "count": len(jobs)}
         else:
-            return {"success": False, "error": "No jobs found on page"}
+            return {"success": False, "error": "No jobs found on page", "jobs": [], "count": 0}
 
     except Exception as e:
         return {"success": False, "error": str(e)}

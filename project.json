@@ -1,0 +1,9 @@
+{
+  "project_id": 1139,
+  "project_name": "BTC Email Tracker",
+  "type_id": 5,
+  "description": "Send BTC price every 5m to telegram, discord and email",
+  "scheduler_path": "/root/dreampilot/projects/scheduler/1139_btc-email-tracker_20260414_154216",
+  "status": "ready",
+  "created_at": "2026-04-14T15:49:24.352175"
+}

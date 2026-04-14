@@ -107,9 +107,20 @@ def _fetch_news() -> str:
 
 
 def _fetch_software_jobs() -> str:
-    """Fetch remote software jobs via web scraping, returns formatted string."""
-    # DEBUG: Return simple static text to test
-    return "Job 1\nCompany A\nhttps://example.com/job1\n\nJob 2\nCompany B\nhttps://example.com/job2"
+    """Fetch remote software jobs, returns formatted string."""
+    def _do_fetch():
+        result = api_client.get_remote_software_jobs(count=10)
+        if result.get("success"):
+            jobs = result.get("jobs", [])
+            formatted = []
+            for job in jobs[:10]:
+                title = job.get("jobTitle", "Unknown")
+                company = job.get("companyName", "Unknown Company")
+                url = job.get("url", "#")
+                formatted.append(f"{title}\n{company}\n{url}")
+            return "\n\n".join(formatted)
+        return f"unavailable ({result.get('error', 'unknown')})"
+    return _cached_fetch("software_jobs", _do_fetch)
 
 
 def resolve_content(payload: dict) -> dict:
@@ -411,27 +422,11 @@ def _btc_price_multi_channel(payload: dict) -> Tuple[str, str]:
 
 
 def _software_jobs_alert(payload: dict) -> Tuple[str, str]:
-    """Send software jobs to all configured channels (Telegram, Email)."""
+    """Send software jobs to email only."""
     text = payload.get('text', 'Software Jobs Update')
     subject = payload.get('subject', 'Daily Software Jobs')
 
-    results = []
-    failed_channels = []
-
-    # Send to Telegram
-    if TELEGRAM_BOT_TOKEN:
-        try:
-            status, message = _send_telegram({
-                'chat_id': TELEGRAM_CHAT_ID,
-                'text': text
-            })
-            results.append(('Telegram', status))
-            if status == 'failed':
-                failed_channels.append(f'Telegram: {message}')
-        except Exception as e:
-            failed_channels.append(f'Telegram: {str(e)}')
-
-    # Send to Email
+    # Send to Email only
     if EMAIL_TO:
         try:
             status, message = _send_email({
@@ -439,17 +434,12 @@ def _software_jobs_alert(payload: dict) -> Tuple[str, str]:
                 'subject': subject,
                 'body': text
             })
-            results.append(('Email', status))
             if status == 'failed':
-                failed_channels.append(f'Email: {message}')
+                return ('failed', f'Failed to send email: {message}')
+            return ('success', f'Software jobs sent to email: {EMAIL_TO}')
         except Exception as e:
-            failed_channels.append(f'Email: {str(e)}')
-
-    # Return results
-    if failed_channels:
-        return ('failed', f'Failed to send to: {", ".join(failed_channels)}')
-
-    success_channels = [channel for channel, status in results if status == 'success']
-    return ('success', f'Software jobs sent to {len(success_channels)} channels: {", ".join(success_channels)}')
+            return ('failed', f'Email error: {str(e)}')
+    else:
+        return ('failed', 'Email not configured (EMAIL_TO not set)')
 
 

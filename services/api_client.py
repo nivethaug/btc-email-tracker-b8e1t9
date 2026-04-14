@@ -166,7 +166,7 @@ def get_remote_software_jobs(count: int = 10) -> dict:
     """
     try:
         url = "https://jobicy.com/api/v2/remote-jobs"
-        params = {"count": count, "geo": "all", "industry": "software-development"}
+        params = {"count": count}
 
         response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()

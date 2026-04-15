@@ -2,11 +2,11 @@
   "scheduler/executor.py": {
     "summary": "Task execution router with dynamic content resolution. Supports {{variable}} templates in payloads that are resolved to live data before sending. Routes to task-specific handlers (telegram, discord, email, api, trade, software_jobs_alert). AI agents add entries to FETCH_DATA_REGISTRY and new task_type handlers with elif routes in execute_task().",
     "key_components": [
-      "FETCH_DATA_REGISTRY - maps variable names to data fetch functions (btc_price, eth_price, weather, news, software_jobs)",
+      "FETCH_DATA_REGISTRY - maps variable names to data fetch functions (btc_price, eth_price, weather, news, software_jobs, ai_news)",
       "resolve_content() - replaces {{variable}} with live data",
       "execute_task(job) - main entry point called by central scheduler",
       "Task handlers: _send_telegram, _send_discord, _send_email, _call_api, _execute_trade, _software_jobs_alert (email-only)",
-      "Data fetchers: _fetch_crypto, _fetch_weather, _fetch_news, _fetch_software_jobs"
+      "Data fetchers: _fetch_crypto, _fetch_weather, _fetch_news, _fetch_software_jobs, _fetch_ai_news"
     ]
   },
   "scheduler/job_manager.py": {
@@ -23,13 +23,14 @@
     "key_components": []
   },
   "services/api_client.py": {
-    "summary": "External API client module. Provides helper functions for public APIs (CoinGecko for crypto, Open-Meteo for weather, Hacker News for news, Jobicy for jobs) and web scrapers (WeWorkRemotely). AI agents add new API functions here. All HTTP requests centralized in this module.",
+    "summary": "External API client module. Provides helper functions for public APIs (CoinGecko for crypto, Open-Meteo for weather, Hacker News for news and AI news, Jobicy for jobs) and web scrapers (WeWorkRemotely). AI agents add new API functions here. All HTTP requests centralized in this module.",
     "key_components": [
       "fetch_json() - generic JSON fetcher utility",
       "safe_get() - safe nested dict access",
       "get_crypto_price() - CoinGecko integration",
       "get_weather() - Open-Meteo integration",
       "get_news() - Hacker News integration",
+      "get_ai_news() - Hacker News AI-filtered news integration",
       "get_remote_software_jobs() - Jobicy API integration",
       "scrape_weworkremotely_jobs() - Web scraper for WeWorkRemotely jobs (BeautifulSoup + lxml)"
     ]

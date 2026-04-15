@@ -1,7 +1,7 @@
 {
   "scheduler/executor.py": {
     "path": "scheduler/executor.py",
-    "lines": 291,
+    "lines": 463,
     "type": "task_router",
     "purpose": "Routes task execution by type with dynamic content resolution. AI agents add FETCH_DATA_REGISTRY entries and task handlers here.",
     "functions": [
@@ -15,7 +15,10 @@
       "_execute_trade()",
       "_fetch_crypto()",
       "_fetch_weather()",
-      "_fetch_news()"
+      "_fetch_news()",
+      "_fetch_ai_news()",
+      "_btc_price_multi_channel()",
+      "_software_jobs_alert()"
     ],
     "registry": "FETCH_DATA_REGISTRY"
   },
@@ -47,7 +50,7 @@
   },
   "services/api_client.py": {
     "path": "services/api_client.py",
-    "lines": 156,
+    "lines": 311,
     "type": "api_client",
     "purpose": "External API helper functions. AI agents add new data source functions here.",
     "functions": [
@@ -55,7 +58,10 @@
       "safe_get()",
       "get_crypto_price()",
       "get_weather()",
-      "get_news()"
+      "get_news()",
+      "get_ai_news()",
+      "get_remote_software_jobs()",
+      "scrape_weworkremotely_jobs()"
     ]
   },
   "services/__init__.py": {

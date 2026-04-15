@@ -19,9 +19,17 @@
     "type": "registry",
     "file": "scheduler/executor.py",
     "start_line": 52,
-    "end_line": 58,
+    "end_line": 59,
     "module": "scheduler",
-    "description": "FETCH_DATA_REGISTRY - Maps variable names (btc_price, eth_price, weather, news, software_jobs) to fetch functions. AI adds new entries here."
+    "description": "FETCH_DATA_REGISTRY - Maps variable names (btc_price, eth_price, weather, news, software_jobs, ai_news) to fetch functions. AI adds new entries here."
+  },
+  "_fetch_ai_news": {
+    "type": "function",
+    "file": "scheduler/executor.py",
+    "start_line": 127,
+    "end_line": 141,
+    "module": "scheduler",
+    "description": "_fetch_ai_news() - Fetches AI-related news via api_client.get_ai_news(), returns formatted AI news stories."
   },
   "_fetch_software_jobs": {
     "type": "function",
@@ -214,5 +222,13 @@
     "end_line": 240,
     "module": "services",
     "description": "scrape_weworkremotely_jobs(category) - Scrape software jobs from WeWorkRemotely using web scraping (BeautifulSoup + lxml). Returns job listings with title, company, URL, date posted."
+  },
+  "get_ai_news": {
+    "type": "api",
+    "file": "services/api_client.py",
+    "start_line": 258,
+    "end_line": 311,
+    "module": "services",
+    "description": "get_ai_news(count) - Fetch AI-related news from HackerNews by filtering top stories for AI keywords (AI, ML, LLM, GPT, Claude, etc.). Returns formatted AI news stories with title, URL, score."
   }
 }

@@ -253,3 +253,59 @@ def scrape_weworkremotely_jobs(category: str = "programming") -> dict:
 
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+def get_ai_news(count: int = 5) -> dict:
+    """
+    Fetch AI-related news from HackerNews by filtering top stories.
+
+    Args:
+        count: Number of AI stories to return (default: 5)
+
+    Returns:
+        dict with AI-related news stories
+    """
+    try:
+        # AI-related keywords to filter
+        ai_keywords = [
+            'AI', 'artificial intelligence', 'machine learning', 'ML', 'LLM',
+            'GPT', 'ChatGPT', 'OpenAI', 'neural', 'deep learning', 'Claude',
+            'Anthropic', 'transformer', 'diffusion', 'prompt', 'agent'
+        ]
+
+        # Fetch top stories (more than we need to filter)
+        url = "https://hacker-news.firebaseio.com/v0/topstories.json"
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+        story_ids = response.json()[:30]  # Get top 30 to filter
+
+        # Fetch story details and filter for AI-related content
+        ai_stories = []
+        for sid in story_ids:
+            if len(ai_stories) >= count:
+                break
+
+            story_resp = requests.get(
+                f"https://hacker-news.firebaseio.com/v0/item/{sid}.json",
+                timeout=REQUEST_TIMEOUT
+            )
+            if story_resp.ok:
+                story = story_resp.json()
+                title = story.get("title", "").lower()
+
+                # Check if title contains AI-related keywords
+                if any(keyword.lower() in title for keyword in ai_keywords):
+                    url = story.get("url", f"https://news.ycombinator.com/item?id={sid}")
+                    ai_stories.append({
+                        "title": story.get("title", ""),
+                        "url": url,
+                        "score": story.get("score", 0)
+                    })
+
+        if ai_stories:
+            return {"success": True, "stories": ai_stories, "count": len(ai_stories)}
+        else:
+            return {"success": False, "error": "No AI-related stories found", "stories": [], "count": 0}
+
+    except Exception as e:
+        return {"success": False, "error": str(e), "stories": [], "count": 0}

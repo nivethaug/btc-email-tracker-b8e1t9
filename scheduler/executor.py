@@ -55,6 +55,7 @@ FETCH_DATA_REGISTRY = {
     "weather": lambda: _fetch_weather(),
     "news": lambda: _fetch_news(),
     "software_jobs": lambda: _fetch_software_jobs(),
+    "ai_news": lambda: _fetch_ai_news(),
 }
 
 
@@ -121,6 +122,23 @@ def _fetch_software_jobs() -> str:
             return "\n\n".join(formatted)
         return f"unavailable ({result.get('error', 'unknown')})"
     return _cached_fetch("software_jobs", _do_fetch)
+
+
+def _fetch_ai_news() -> str:
+    """Fetch AI-related news, returns formatted string."""
+    def _do_fetch():
+        result = api_client.get_ai_news(count=5)
+        if result.get("success"):
+            stories = result.get("stories", [])
+            formatted = []
+            for i, story in enumerate(stories, 1):
+                title = story.get("title", "Unknown")
+                url = story.get("url", "#")
+                score = story.get("score", 0)
+                formatted.append(f"{i}. {title}\n   {url}\n   Score: {score}")
+            return "\n\n".join(formatted)
+        return f"unavailable ({result.get('error', 'unknown')})"
+    return _cached_fetch("ai_news", _do_fetch, ttl=300)
 
 
 def resolve_content(payload: dict) -> dict:
